@@ -1,0 +1,89 @@
+# =============================================================================
+# CI/CD: Build .NET 9 API and FTP-deploy to MonsterASP.NET on every push to main
+# Place at: .github/workflows/deploy-api.yml (in your StudentManagement repo)
+# =============================================================================
+name: Deploy API to MonsterASP.NET
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'backend/**'
+      - '.github/workflows/deploy-api.yml'
+  workflow_dispatch:
+
+env:
+  DOTNET_VERSION: '9.0.x'
+  PROJECT_PATH: backend/src/StudentManagement.API/StudentManagement.API.csproj
+  SOLUTION_PATH: backend/StudentManagement.sln
+
+jobs:
+  build-and-deploy:
+    name: Build, Publish & FTP Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: ⬇️  Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🧰 Setup .NET ${{ env.DOTNET_VERSION }}
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: 📦 Restore dependencies
+        run: dotnet restore ${{ env.SOLUTION_PATH }}
+
+      - name: 🔨 Build (Release)
+        run: dotnet build ${{ env.SOLUTION_PATH }} --no-restore -c Release
+
+      - name: 🚀 Publish API
+        run: |
+          dotnet publish ${{ env.PROJECT_PATH }} \
+            -c Release \
+            -o ${{ github.workspace }}/publish \
+            --no-restore \
+            /p:UseAppHost=false
+
+      - name: 📝 Inject production appsettings
+        env:
+          DB_CONNECTION: ${{ secrets.DB_CONNECTION }}
+          JWT_KEY: ${{ secrets.JWT_KEY }}
+          ALLOWED_ORIGIN: ${{ secrets.ALLOWED_ORIGIN }}
+        run: |
+          cat > ${{ github.workspace }}/publish/appsettings.Production.json <<EOF
+          {
+            "ConnectionStrings": {
+              "Default": "${DB_CONNECTION}"
+            },
+            "Jwt": {
+              "Key": "${JWT_KEY}",
+              "Issuer": "StudentManagement.API",
+              "Audience": "StudentManagement.Client",
+              "AccessTokenExpiryMinutes": 60
+            },
+            "Cors": {
+              "AllowedOrigins": ["${ALLOWED_ORIGIN}"]
+            },
+            "Logging": {
+              "LogLevel": {
+                "Default": "Warning",
+                "Microsoft.AspNetCore": "Warning"
+              }
+            }
+          }
+          EOF
+
+      - name: 📡 FTP deploy to MonsterASP.NET
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server:    ${{ secrets.MONSTERASP_FTP_SERVER }}
+          username:  ${{ secrets.MONSTERASP_FTP_USER }}
+          password:  ${{ secrets.MONSTERASP_FTP_PASSWORD }}
+          local-dir: ./publish/
+          server-dir: ./
+          dangerous-clean-slate: false
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**

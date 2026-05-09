@@ -1,0 +1,21 @@
+{
+  "ConnectionStrings": {
+    "Default": "Server=YOUR_MONSTER_DB_HOST;Database=YOUR_DB_NAME;User Id=YOUR_DB_USER;Password=YOUR_DB_PASSWORD;TrustServerCertificate=True;Encrypt=True;Connection Timeout=30"
+  },
+  "Jwt": {
+    "Key": "REPLACE_WITH_A_FRESH_64_CHAR_BASE64_SECRET_NEVER_REUSE_DEV_KEY_FOR_PRODUCTION_HERE",
+    "Issuer": "StudentManagement.API",
+    "Audience": "StudentManagement.Client",
+    "AccessTokenExpiryMinutes": 60
+  },
+  "Cors": {
+    "AllowedOrigins": ["https://student-management-vishal.vercel.app"]
+  },
+  "Logging": {
+    "LogLevel": {
+      "Default": "Warning",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "AllowedHosts": "*"
+}

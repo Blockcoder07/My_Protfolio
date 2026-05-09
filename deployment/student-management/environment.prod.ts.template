@@ -1,0 +1,10 @@
+// Place at: frontend/src/environments/environment.prod.ts
+// (in your StudentManagement repo)
+//
+// In production the Angular app will call the MonsterASP.NET API directly.
+// Replace the apiUrl below with your actual MonsterASP.NET site URL.
+
+export const environment = {
+  production: true,
+  apiUrl: "https://student-management-vishal.monsterasp.net/api",
+};
