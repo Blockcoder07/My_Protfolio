@@ -8,12 +8,45 @@ export interface Project {
   emoji: string;
   tech: string[];
   features: string[];
-  github: string;
-  demo: string;
+  /** GitHub repository URL. Omit when the source is private/proprietary. */
+  github?: string;
+  /** Live demo URL. Omit when there is no public demo. */
+  demo?: string;
   featured?: boolean;
+  /** Optional note shown when the source is private (e.g. "Proprietary"). */
+  sourceNote?: string;
 }
 
 export const projects: Project[] = [
+  {
+    id: "loadchief-platform",
+    title: "LoadChief Delivery Platform",
+    tagline: "Live commercial product I'm building at Pulse Software Solutions",
+    description:
+      "LoadChief is a delivery marketplace that connects delivery companies with verified independent contractors. I work on the platform end-to-end at Pulse Software Solutions — building Web APIs, Angular interfaces, SQL Server modules, and shipping production features for both the public marketing site and the contractor app.",
+    image: "",
+    imageGradient: "from-sky-500 via-cyan-500 to-emerald-500",
+    emoji: "🚚",
+    tech: [
+      "ASP.NET Core",
+      "Web API",
+      "Angular",
+      "SQL Server",
+      "T-SQL",
+      "JWT",
+      "SVN",
+    ],
+    features: [
+      "Marketplace matching delivery companies with independent contractors",
+      "Driver onboarding, verification & credential checks",
+      "Post-delivery / accept-delivery workflows with smart dispatch",
+      "Contractor app + delivery company portal + marketing site",
+      "Secure JWT-protected APIs and role-based access",
+    ],
+    demo: "https://app.loadchief.com/",
+    sourceNote: "Proprietary — code not publicly available",
+    featured: true,
+  },
   {
     id: "student-management-system",
     title: "Student Management System",
@@ -42,7 +75,6 @@ export const projects: Project[] = [
       "Angular 21 standalone components, signals & functional interceptors",
     ],
     github: "https://github.com/Blockcoder07/StudentManagement",
-    demo: "https://github.com/Blockcoder07/StudentManagement",
     featured: true,
   },
   {
@@ -72,8 +104,6 @@ export const projects: Project[] = [
       "Centralized Angular API client + global 401 interceptor",
     ],
     github: "https://github.com/Blockcoder07/Clinik_ManageMent",
-    demo: "https://github.com/Blockcoder07/Clinik_ManageMent",
-    featured: true,
   },
   {
     id: "bank-statement-api",
@@ -93,7 +123,5 @@ export const projects: Project[] = [
       "Clean dependency injection and consistent error handling",
     ],
     github: "https://github.com/Blockcoder07/BankstatementApi",
-    demo: "https://github.com/Blockcoder07/BankstatementApi",
-    featured: false,
   },
 ];

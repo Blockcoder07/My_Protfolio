@@ -2,7 +2,14 @@
 
 import * as React from "react";
 import { motion } from "framer-motion";
-import { Github, ExternalLink, ArrowUpRight, Star, Check } from "lucide-react";
+import {
+  Github,
+  ExternalLink,
+  ArrowUpRight,
+  Star,
+  Check,
+  Lock,
+} from "lucide-react";
 import { SectionHeading } from "@/components/shared/section-heading";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -21,7 +28,7 @@ export function Projects() {
               <span className="gradient-text">I&apos;m proud of</span>
             </>
           }
-          description="Hand-picked projects spanning enterprise dashboards, logistics platforms, payroll automation, and secure API services."
+          description="A live commercial product I'm shipping at Pulse Software Solutions, plus open-source full-stack .NET projects on GitHub."
         />
 
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -36,6 +43,9 @@ export function Projects() {
 
 function ProjectCard({ project, index }: { project: Project; index: number }) {
   const isFeatured = project.featured;
+  const hasGithub = Boolean(project.github);
+  const hasDemo = Boolean(project.demo);
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 28 }}
@@ -56,34 +66,51 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
               {project.emoji}
             </div>
           </div>
-          {isFeatured && (
-            <div className="absolute left-4 top-4 inline-flex items-center gap-1.5 rounded-full border border-white/30 bg-white/15 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white backdrop-blur-md">
-              <Star className="h-3 w-3" /> Featured
-            </div>
-          )}
+
+          <div className="absolute left-4 top-4 flex gap-2">
+            {isFeatured && (
+              <div className="inline-flex items-center gap-1.5 rounded-full border border-white/30 bg-white/15 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white backdrop-blur-md">
+                <Star className="h-3 w-3" /> Featured
+              </div>
+            )}
+            {hasDemo && (
+              <div className="inline-flex items-center gap-1.5 rounded-full border border-emerald-300/50 bg-emerald-500/30 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white backdrop-blur-md">
+                <span className="relative flex h-1.5 w-1.5">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-300 opacity-80" />
+                  <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-300" />
+                </span>
+                Live
+              </div>
+            )}
+          </div>
+
           <div className="absolute right-4 top-4 flex gap-2">
-            <a
-              href={project.github}
-              target="_blank"
-              rel="noreferrer noopener"
-              aria-label={`${project.title} GitHub repo`}
-              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/25 bg-black/30 text-white backdrop-blur-md transition hover:bg-black/50"
-            >
-              <Github className="h-4 w-4" />
-            </a>
-            <a
-              href={project.demo}
-              target="_blank"
-              rel="noreferrer noopener"
-              aria-label={`${project.title} live demo`}
-              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/25 bg-black/30 text-white backdrop-blur-md transition hover:bg-black/50"
-            >
-              <ExternalLink className="h-4 w-4" />
-            </a>
+            {hasGithub && (
+              <a
+                href={project.github}
+                target="_blank"
+                rel="noreferrer noopener"
+                aria-label={`${project.title} GitHub repo`}
+                className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/25 bg-black/30 text-white backdrop-blur-md transition hover:bg-black/50"
+              >
+                <Github className="h-4 w-4" />
+              </a>
+            )}
+            {hasDemo && (
+              <a
+                href={project.demo}
+                target="_blank"
+                rel="noreferrer noopener"
+                aria-label={`${project.title} live demo`}
+                className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/25 bg-black/30 text-white backdrop-blur-md transition hover:bg-black/50"
+              >
+                <ExternalLink className="h-4 w-4" />
+              </a>
+            )}
           </div>
         </div>
 
-        <CardContent className="flex flex-col p-6">
+        <CardContent className="flex flex-1 flex-col p-6">
           <div className="mb-2 flex items-center justify-between gap-3">
             <h3 className="text-xl font-semibold tracking-tight">
               {project.title}
@@ -117,29 +144,40 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
             ))}
           </div>
 
-          <div className="mt-6 flex items-center gap-2">
-            <a
-              href={project.github}
-              target="_blank"
-              rel="noreferrer noopener"
-              className="flex-1"
-            >
-              <Button variant="outline" size="sm" className="w-full">
-                <Github className="h-4 w-4" />
-                Code
-              </Button>
-            </a>
-            <a
-              href={project.demo}
-              target="_blank"
-              rel="noreferrer noopener"
-              className="flex-1"
-            >
-              <Button size="sm" className="w-full">
-                <ExternalLink className="h-4 w-4" />
-                Live Demo
-              </Button>
-            </a>
+          {project.sourceNote && (
+            <p className="mt-4 inline-flex items-center gap-1.5 text-[11px] text-muted-foreground">
+              <Lock className="h-3 w-3" />
+              {project.sourceNote}
+            </p>
+          )}
+
+          <div className="mt-auto flex items-center gap-2 pt-6">
+            {hasGithub && (
+              <a
+                href={project.github}
+                target="_blank"
+                rel="noreferrer noopener"
+                className="flex-1"
+              >
+                <Button variant="outline" size="sm" className="w-full">
+                  <Github className="h-4 w-4" />
+                  Code
+                </Button>
+              </a>
+            )}
+            {hasDemo && (
+              <a
+                href={project.demo}
+                target="_blank"
+                rel="noreferrer noopener"
+                className="flex-1"
+              >
+                <Button size="sm" className="w-full">
+                  <ExternalLink className="h-4 w-4" />
+                  Live Demo
+                </Button>
+              </a>
+            )}
           </div>
         </CardContent>
       </Card>

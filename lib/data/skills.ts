@@ -12,6 +12,7 @@ import {
   Palette,
   TerminalSquare,
   Github,
+  GitFork,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -47,16 +48,16 @@ export const skillCategories: SkillCategory[] = [
   {
     id: "frontend",
     title: "Frontend",
-    description: "Crafting fluid UIs with Angular & modern CSS.",
+    description: "Building solid Angular UIs & modern responsive interfaces.",
     icon: Layout,
     accent: "from-sky-500 to-cyan-500",
     skills: [
-      { name: "Angular", level: 85, icon: Sparkles },
-      { name: "JavaScript", level: 88, icon: FileCode2 },
-      { name: "HTML", level: 95, icon: Code2 },
-      { name: "CSS", level: 90, icon: Palette },
-      { name: "Bootstrap", level: 88, icon: Layout },
-      { name: "Tailwind CSS", level: 85, icon: Palette },
+      { name: "Angular", level: 75, icon: Sparkles },
+      { name: "JavaScript", level: 78, icon: FileCode2 },
+      { name: "HTML", level: 80, icon: Code2 },
+      { name: "CSS", level: 76, icon: Palette },
+      { name: "Bootstrap", level: 78, icon: Layout },
+      { name: "Tailwind CSS", level: 72, icon: Palette },
     ],
   },
   {
@@ -74,13 +75,14 @@ export const skillCategories: SkillCategory[] = [
   {
     id: "tools",
     title: "Tools & DevOps",
-    description: "Shipping with modern DevOps & developer tools.",
+    description: "Shipping with modern DevOps & version control.",
     icon: Wrench,
     accent: "from-amber-500 to-orange-500",
     skills: [
-      { name: "Git", level: 90, icon: GitBranch },
+      { name: "Git", level: 88, icon: GitBranch },
       { name: "GitHub", level: 90, icon: Github },
-      { name: "Azure DevOps", level: 82, icon: Cloud },
+      { name: "SVN", level: 80, icon: GitFork },
+      { name: "Azure DevOps", level: 78, icon: Cloud },
       { name: "Visual Studio", level: 92, icon: Code2 },
     ],
   },
