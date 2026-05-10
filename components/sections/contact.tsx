@@ -11,6 +11,7 @@ import {
   Send,
   CheckCircle2,
   Sparkles,
+  AlertCircle,
 } from "lucide-react";
 import { SectionHeading } from "@/components/shared/section-heading";
 import { Card, CardContent } from "@/components/ui/card";
@@ -51,19 +52,70 @@ const contactItems = [
   },
 ];
 
-export function Contact() {
-  const [submitting, setSubmitting] = React.useState(false);
-  const [submitted, setSubmitted] = React.useState(false);
+// FormSubmit endpoint (no signup, free, unlimited).
+// First-ever submission triggers a confirmation email — click the link
+// in your inbox to activate, then real messages start arriving.
+const FORMSUBMIT_ENDPOINT = `https://formsubmit.co/ajax/${personal.email}`;
 
-  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+type Status = "idle" | "submitting" | "success" | "error";
+
+export function Contact() {
+  const [status, setStatus] = React.useState<Status>("idle");
+  const [errorMessage, setErrorMessage] = React.useState<string>("");
+
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setSubmitting(true);
-    setTimeout(() => {
-      setSubmitting(false);
-      setSubmitted(true);
-      setTimeout(() => setSubmitted(false), 3500);
-      (e.target as HTMLFormElement).reset();
-    }, 1100);
+    if (status === "submitting") return;
+
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+    const payload = {
+      name: String(formData.get("name") ?? ""),
+      email: String(formData.get("email") ?? ""),
+      subject: String(formData.get("subject") ?? "New message from portfolio"),
+      message: String(formData.get("message") ?? ""),
+      // FormSubmit configuration fields:
+      _subject: `Portfolio · ${formData.get("subject") || "New message"}`,
+      _template: "table",
+      _captcha: "false",
+    };
+
+    setStatus("submitting");
+    setErrorMessage("");
+
+    try {
+      const res = await fetch(FORMSUBMIT_ENDPOINT, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json().catch(() => ({}));
+      const ok =
+        res.ok && (data?.success === "true" || data?.success === true);
+
+      if (!ok) {
+        throw new Error(
+          data?.message ||
+            "We couldn't send your message right now. Please try again or email me directly.",
+        );
+      }
+
+      setStatus("success");
+      form.reset();
+      setTimeout(() => setStatus("idle"), 4500);
+    } catch (err) {
+      const message =
+        err instanceof Error
+          ? err.message
+          : "Something went wrong. Please try again.";
+      setErrorMessage(message);
+      setStatus("error");
+      setTimeout(() => setStatus("idle"), 6000);
+    }
   };
 
   return (
@@ -169,8 +221,8 @@ export function Contact() {
                   Send me a message
                 </h3>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  This form is UI-only — wire it up to your favorite service
-                  (Resend, Formspree, etc.) when you&apos;re ready.
+                  Messages are delivered straight to my inbox. I usually reply
+                  within a day.
                 </p>
 
                 <form className="mt-6 space-y-4" onSubmit={onSubmit}>
@@ -187,6 +239,7 @@ export function Contact() {
                         name="name"
                         required
                         placeholder="Your full name"
+                        disabled={status === "submitting"}
                       />
                     </div>
                     <div className="space-y-1.5">
@@ -202,6 +255,7 @@ export function Contact() {
                         type="email"
                         required
                         placeholder="you@company.com"
+                        disabled={status === "submitting"}
                       />
                     </div>
                   </div>
@@ -216,6 +270,7 @@ export function Contact() {
                       id="subject"
                       name="subject"
                       placeholder="Project / Role / Collaboration"
+                      disabled={status === "submitting"}
                     />
                   </div>
                   <div className="space-y-1.5">
@@ -231,8 +286,43 @@ export function Contact() {
                       required
                       placeholder="Tell me a bit about your project or opportunity…"
                       rows={5}
+                      disabled={status === "submitting"}
                     />
                   </div>
+
+                  {/* Inline status banner for success / error */}
+                  {status === "success" && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="flex items-start gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-3 py-2.5 text-sm text-emerald-600 dark:text-emerald-400"
+                    >
+                      <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />
+                      <span>
+                        Thanks! Your message is on its way to my inbox — I&apos;ll
+                        get back to you soon.
+                      </span>
+                    </motion.div>
+                  )}
+                  {status === "error" && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="flex items-start gap-2 rounded-xl border border-red-500/30 bg-red-500/10 px-3 py-2.5 text-sm text-red-600 dark:text-red-400"
+                    >
+                      <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                      <span>
+                        {errorMessage}{" "}
+                        <a
+                          href={`mailto:${personal.email}`}
+                          className="underline underline-offset-2"
+                        >
+                          Email me directly
+                        </a>{" "}
+                        instead.
+                      </span>
+                    </motion.div>
+                  )}
 
                   <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <p className="text-xs text-muted-foreground">
@@ -242,15 +332,15 @@ export function Contact() {
                     <Button
                       type="submit"
                       size="lg"
-                      disabled={submitting}
-                      className={cn(submitting && "opacity-80")}
+                      disabled={status === "submitting"}
+                      className={cn(status === "submitting" && "opacity-80")}
                     >
-                      {submitted ? (
+                      {status === "success" ? (
                         <>
                           <CheckCircle2 className="h-4 w-4" />
                           Sent!
                         </>
-                      ) : submitting ? (
+                      ) : status === "submitting" ? (
                         <>
                           <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
                           Sending…
